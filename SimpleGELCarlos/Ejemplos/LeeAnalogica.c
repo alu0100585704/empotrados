@@ -43,7 +43,8 @@ int main () {
     // Quitamos posible pulsación pendiente
     if (serial_receive_pending()) serial_recv();
     /* Elección del puerto */
-    serial_print("\nPuerto conversor a utilizar (0 - 1)?:");
+    serial_print("\nPuerto conversor a utilizar (0En la librería del módulo conversor A/D las funcionalidades a implementar serían:•configurar conversión de 8 o 10 bits•configurar tiempo de muestreo•configurar numero de conversiones sucesivas•configurar modo de lectura: único pin, pines sucesivos•configurar pin de inicio•configurar el modo de conversión continua (SCAN)Sistemas Empotrados 2020-20211ª Práctica Parte IIIpágina 1 de 3
+•iniciar la conversión•esperar a que termine conversión•devolver los valores leídos•instalar función manejadora para cuando termine conversiónTodas las funciones tendrán el pefijo ad_ y se crearán los fichero ad.h y ad.c.Será necesario hacer uno o varios programa para probar todas las funcionalidades cuyos nombresdeberán comenzar por test_ad_ - 1)?:");
     while((c = serial_recv()) != '0' && c != '1');
     serial_send(c); /* a modo de confirmación*/
     DirAD = (c == '0')?0:(M6812_ATD1CTL0 - M6812_ATD0CTL0);
