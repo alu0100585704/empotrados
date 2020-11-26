@@ -1,6 +1,7 @@
 
 void ad_ocho_o_diez_bits(bool ocho)
 {
+	
 }
 void ad_tiempo_muestreo(uint16_t valor)
 {
