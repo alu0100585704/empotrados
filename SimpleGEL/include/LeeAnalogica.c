@@ -32,7 +32,7 @@ uint8_t ciclosMuestreo_; 	/** Ciclos de muestreo */
  * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada
  * @param	interactivo	está a 1 si el usuario quiere interactuar
  */
-ad_ciclos_muestreo(uint8_t valor, uint8_t interactivo)
+ad_ciclos_muestreo (uint8_t valor, uint8_t interactivo)
 {
 	char c;
 	if (interactivo)
@@ -51,7 +51,7 @@ ad_ciclos_muestreo(uint8_t valor, uint8_t interactivo)
  * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada
  * @param	interactivo	está a 1 si el usuario quiere interactuar
  */
-ad_ocho_o_diez_bits(uint8_t valor, uint8_t interactivo)
+ad_ocho_o_diez_bits (uint8_t valor, uint8_t interactivo)
 {
 	char c;
 	if (interactivo)
@@ -70,7 +70,7 @@ ad_ocho_o_diez_bits(uint8_t valor, uint8_t interactivo)
  * @param	valor		valor que definirá el usuario para el modo
  * @param	interactivo	está a 1 si el usuario quiere interactuar
  */
-void ad_tiempo_muestreo(uint16_t valor)
+void ad_tiempo_muestreo (uint16_t valor)
 {
 	
 }
@@ -80,7 +80,7 @@ void ad_tiempo_muestreo(uint16_t valor)
  * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada 
  * @param	interactivo	está a 1 si el usuario quiere interactuar
  */
-void ad_pin_inicio(uint8_t valor,uint8_t interactivo)
+void ad_pin_inicio (uint8_t valor, uint8_t interactivo)
 {
 	char c;
 	if (interactivo)
@@ -99,7 +99,7 @@ void ad_pin_inicio(uint8_t valor,uint8_t interactivo)
  * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada 
  * @param	interactivo	está a 1 si el usuario quiere interactuar
  */
-void ad_modulo(uint8_t valor, uint8_t interactivo)
+void ad_modulo (uint8_t valor, uint8_t interactivo)
 {
 	char c;
 	if (interactivo)
@@ -161,32 +161,20 @@ void ad_iniciar ()
   
 }
 
+/**
+ * @brief	Función para esperar a que se termine la conversión 
+ */
 void ad_esperar_terminar()
 {
-	
+	/* Esperamos a que se termine la conversión */
+	while (! (_io_ports[M6812_ATD0STAT0 + DirAD_] & M6812B_SCF));
 }
 
-void ad_devolver_valore_leidos()
+/**
+ * @brief	Función para obtener los valores resultantes de la conversión y mostrarlos al usuario
+ */
+void ad_devolver_valores_leidos ()
 {
-	
-}
-
-int main () {
-	
-	char c;
-	uint16_t DirAd;
-	uint8_t Pin;
-	
-    	ad_pin_inicio(0,1); 
-    
-	ad_modulo(0,1);
-	
-	ad_ocho_o_diez_bits(0,1); ///resio_ports[M6812_ATD0CTL5 + DirAD] = M6812B_SCAN | M6812B_S8C | Pin;olución solicitada
-   
-    	ad_ciclos_muestreo(0,1);
-    
-    	ad_iniciar();
-    
 	//CONVERSIÓN
 	serial_print("\nConvirtiendo (pulsa para salir)\n");
 
@@ -205,8 +193,15 @@ int main () {
 			serial_send('\b');
 		}
 
-		/* Esperamos a que se termine la conversión */
-		while(! (_io_ports[M6812_ATD0STAT0 + DirAD_] & M6812B_SCF));
+		/**
+		MIRAR
+		MIRAR
+		MIRAR
+		MIRAR
+		MIRAR
+		*/
+		/** Esperamos a que termine la conversión */
+		ad_esperar_terminar();
 
 		/*Invertimos el led*/
 		_io_ports[M6812_PORTG] ^= M6812B_PG7;
@@ -226,6 +221,27 @@ int main () {
 		serial_printdecword(resultado);
 		serial_send('\n');
 		resultadoAnterior = resultado;
+	}
+}
+
+int main () {
+	
+	char c;
+	uint16_t DirAd;
+	uint8_t Pin;
+	
+    	ad_pin_inicio(0,1); 
+    
+	ad_modulo(0,1);
+	
+	ad_ocho_o_diez_bits(0,1); ///resio_ports[M6812_ATD0CTL5 + DirAD] = M6812B_SCAN | M6812B_S8C | Pin;olución solicitada
+   
+    	ad_ciclos_muestreo(0,1);
+    
+    	ad_iniciar();
+    
+	ad_devolver_valores_leidos();
+
 	}
 }
 
@@ -252,8 +268,7 @@ int main () {
     //// Quitamos posible pulsación pendiente
     //if (serial_receive_pending()) serial_recv();
     ///* Elección del puerto */
-    //serial_print("\nPuerto conversor a utilizar (0En la librería del módulo conversor A/D las funcionalidades a implementar serían:•configurar conversión de 8 o 10 bits•configurar tiempo de muestreo•configurar numero de conversiones sucesivas•configurar modo de lectura: único pin, pines sucesivos•configurar pin de inicio•configurar el modo de conversión continua (SCAN)Sistemas Empotrados 2020-20211ª Práctica Parte IIIpágina 1 de 3
-//•iniciar la conversión•esperar a que termine conversión•devolver los valores leídos•instalar función manejadora para cuando termine conversiónTodas las funciones tendrán el pefijo ad_ y se crearán los fichero ad.h y ad.c.Será necesario hacer uno o varios programa para probar todas las funcionalidades cuyos nombresdeberán comenzar por test_ad_ - 1)?:");
+    //serial_print("\nPuerto conversor a utilizar (0 o 1)!);
     //while((c = serial_recv()) != '0' && c != '1');
     //serial_send(c); /* a modo de confirmación*/
     //DirAD = (c == '0')?0:(M6812_ATD1CTL0 - M6812_ATD0CTL0);
@@ -314,48 +329,5 @@ int main () {
       //serial_printdecword(resultado);
       //serial_send('\n');
       //resultadoAnterior = resultado;
-    //}12_ATD0CTL5 + DirAD] = M6812B_SCAN | M6812B_S8C | Pin;
-
-
-    //serial_print("\nConvirtiendo (pulsa para salir)\n");
-
-    //char simbolo[] = "/|\\-*";
-    //uint16_t itera = 0;
-//#define ITERA_CAMBIO (5000)
-    //while(!serial_receive_pending()) {
-
-      //itera++;
-      //if (!(itera % ITERA_CAMBIO)) {
-        //uint8_t simAct = itera/ITERA_CAMBIO;
-        //if(!simbolo[simAct]) {
-          //itera = 0;
-          //simAct = 0;
-        //}
-        //serial_send(simbolo[simAct]);
-        //serial_send('\b');
-      //}
-
-      ///* Esperamos a que se termine la conversión */
-      //while(! (_io_ports[M6812_ATD0STAT0 + DirAD] & M6812B_SCF));
-
-      ///*Invertimos el led*/
-      //_io_ports[M6812_PORTG] ^= M6812B_PG7;
-
-      ///*Vemos si los 8 resultados son iguales */
-      //uint16_t resultado = _IO_PORTS_W(M6812_ADR00H + DirAD);
-      //uint8_t iguales = 1;
-      //for(uint8_t i = 0; iguales && i < 8; i++)
-        //iguales = resultado == _IO_PORTS_W(M6812_ADR00H + DirAD + 2 * i);
-      //if(! iguales)
-        //continue;
-      //if (resultado == resultadoAnterior)
-        //continue;
-
-      ///* Los 8 resultados son iguales y distintos a lo que teníamos antes*/
-      //serial_print("Nuevo valor = ");
-      //serial_printdecword(resultado);
-      //serial_send('\n');
-      //resultadoAnterior = resultado;
     //}
-  //}
 //}
