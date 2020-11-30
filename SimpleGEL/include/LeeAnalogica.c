@@ -72,7 +72,13 @@ ad_ocho_o_diez_bits (uint8_t valor, uint8_t interactivo)
  */
 void ad_tiempo_muestreo (uint16_t valor)
 {
-	
+	/*
+	Cada conversion dura (en ciclos del submodulo):
+		2 ciclos de captura inicial
+		4 ciclos de copia del potencial
+		2, 4, 8  ́o 16 ciclos de muestreo (configurables)
+		10/12 ciclos de conversion de pendiendo de la resolucion pedida (8/10 bits).
+	*/
 }
 
 /**
