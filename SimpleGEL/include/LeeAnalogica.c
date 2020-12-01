@@ -66,19 +66,46 @@ ad_ocho_o_diez_bits (uint8_t valor, uint8_t interactivo)
 }
 
 /**
- * @brief	Función para seleccionar el tiempo de muestreo
- * @param	valor		valor que definirá el usuario para el modo
- * @param	interactivo	está a 1 si el usuario quiere interactuar
+ * @brief	Función para mostrar por pantalla el tiempo de muestreo segun los 
+ *		parámetros configurados anteriormente.
+		Cada conversion dura (en ciclos del submodulo):
+			2 ciclos de captura inicial
+			4 ciclos de copia del potencial
+			2, 4, 8 o 16 ciclos de muestreo (configurables)
+			10/12 ciclos de conversion dependiendo de la resolución pedida (8 o 10 bits configurables).
  */
-void ad_tiempo_muestreo (uint16_t valor)
+void ad_tiempo_muestreo ()
 {
-	/*
-	Cada conversion dura (en ciclos del submodulo):
-		2 ciclos de captura inicial
-		4 ciclos de copia del potencial
-		2, 4, 8  ́o 16 ciclos de muestreo (configurables)
-		10/12 ciclos de conversion de pendiendo de la resolucion pedida (8/10 bits).
-	*/
+	uint8_t sum = 0;
+	
+	uint8_t aux = Resolucion_ + '0';
+	if (aux == 0)
+		sum += 10;
+	else
+		sum += 12;
+	
+	aux = ciclosMuestreo_ + '0';
+	switch (aux)
+	{
+		case 0:
+			sum += 2;
+			break;
+		case 1:
+			sum += 4;
+			break;
+		case 2:
+			sum += 8;
+			break;
+		case 3:
+			sum += 16;
+			break;
+		default:
+			break;
+	}
+	sum += sum + 6;
+	
+	serial_print("\nTiempo de muestreo en ciclos según la configuración realizada: ");
+	serial_send(sum);
 }
 
 /**
@@ -131,7 +158,9 @@ void ad_modulo (uint8_t valor, uint8_t interactivo)
  */
 void ad_iniciar ()
 {
+	uint8_t aux;
 	/** Se mira el tipo de resolución */
+	aux = Resolucion_ + '0';
 	if (Resolucion_)			
 		_io_ports[M6812_ATD0CTL4 + DirAD_] |= M6812B_RES10 ;
     	else
@@ -141,6 +170,7 @@ void ad_iniciar ()
 	 _io_ports[M6812_ATD0CTL5 + DirAD_] |=  Pin_;
 	
 	/** Dependiendo del valor seleccionado, se activara unos bits u otros para el valor de ciclos de muestreo (SMP0 Y SMP1) */
+	aux = ciclosMuestreo_ + '0';
 	switch (ciclosMuestreo_)
 	{
 		case 0: 
@@ -198,14 +228,7 @@ void ad_devolver_valores_leidos ()
 			serial_send(simbolo[simAct]);
 			serial_send('\b');
 		}
-
-		/**
-		MIRAR
-		MIRAR
-		MIRAR
-		MIRAR
-		MIRAR
-		*/
+		
 		/** Esperamos a que termine la conversión */
 		ad_esperar_terminar();
 
@@ -247,6 +270,8 @@ int main () {
     	ad_iniciar();
     
 	ad_devolver_valores_leidos();
+	
+ 	ad_tiempo_muestreo();
 
 	}
 }
