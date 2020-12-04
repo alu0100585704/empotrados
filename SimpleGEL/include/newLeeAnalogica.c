@@ -605,12 +605,12 @@ int main () {
 		
 		///Hasta aquí se han recogido todos los datos en modo interactivo, para poder hacer las pruebas más fácilmente.
 		
-    	ad_start(); ///se inicia el proceso
     
 /*******************************************************************************************
  * Versión Polling sin rutina de usuario.
  ******************************************************************************************/
 		ad_activarInterrupMode(0); ///Me aseguro de desactivar las interrupciones
+    	ad_start(); ///se inicia el proceso
 	
 	while (1) 
 	{	
@@ -624,7 +624,8 @@ int main () {
  ******************************************************************************************/
 		ad_activarInterrupMode(0); ///Me aseguro de desactivar las interrupciones
 		ad_setUserFunction(&rutinaUsuario); ///configuro una rutina de usuario.
-		
+	    	ad_start(); ///se inicia el proceso
+	
 	while (1) 
 	{	
 		valores = ad_wait_for_data(); ///espero a una lectura total de la secuencia. También se ejecutaría la rutina de usuario en caso de definirla.
@@ -637,6 +638,7 @@ int main () {
  ******************************************************************************************/
 		ad_activarInterrupMode(1); ///Me aseguro de desactivar las interrupciones
 		ad_setUserFunction(NULL); ///configuro una rutina de usuario.
+    	ad_start(); ///se inicia el proceso
 		
 		  while(1)
 		  {
@@ -650,6 +652,7 @@ int main () {
  ******************************************************************************************/
 		ad_activarInterrupMode(1); ///Me aseguro de desactivar las interrupciones
 		ad_setUserFunction(&rutinaUsuario); ///configuro una rutina de usuario.
+    	ad_start(); ///se inicia el proceso
 		
 		  while(1)		  
 			__asm__ __volatile__("wai");
