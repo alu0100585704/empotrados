@@ -150,10 +150,10 @@ void ad_start();
 /**
  * Devuelve la posicion del array de valores de los registros
  */
-//uint16_t * ad_returnValores(void)
-//{
-//	return  &valoresRegistros_[0];
-//}
+uint16_t * ad_returnValores(void)
+{
+	return  &valoresRegistros_[0];
+}
 
 
 
@@ -164,6 +164,10 @@ void ad_start();
 **********************************************************************************************************************************************************
 *****************************************************          IMPLEMENTACIÓN CÓDIGO   				******************************************************
 ***********************************************************************************************************************************************************/
+
+
+
+
 
 
 
@@ -179,7 +183,7 @@ void ad_setUserFunction(void (*ptr)(uint16_t *))
 }
 
 /**
- * @brief	Función que activa o desactiva newLeeAnalogica.s19el tratamiento de los registros de datos mediante interrupción.
+ * @brief	Función que activa o desactiva el tratamiento de los registros de datos mediante interrupción.
  * @param	valor		si 1, se activan las interrupciones, si 0, se desactivan 
  */
 void ad_activarInterrupMode(uint8_t valor) 
@@ -539,6 +543,7 @@ void ad_start()
 			default:
 			break;
 		}
+
 ///Activo o desactivo las interrupciones según valor		
 	if (interrupMode_) ///si interrupciones habilitadas
 		{
@@ -571,6 +576,7 @@ void ad_start()
 
 }
 
+
 /**
  * Rutina establecida por el usuario, que se ejecutará después de la lectura de valores tanto en modo polling como por interrupción.
  */
@@ -602,14 +608,14 @@ int main () {
 		///Hasta aquí se han recogido todos los datos en modo interactivo, para poder hacer las pruebas más fácilmente.
 		
     
-/**************************************newLeeAnalogica.s19*****************************************************
+/*******************************************************************************************
  * Versión Polling sin rutina de usuario.
  ******************************************************************************************/
  	ad_activarInterrupMode(0); ///Me aseguro de desactivar las interrupciones
     	ad_start(); ///se inicia el proceso
 	
 	while (1) 
-	{			
+	{	
 		valores = ad_wait_for_data(); ///espero a una lectura total de la secuencia. También se ejecutaría la rutina de usuario en caso de definirla.
 		///ahora podría leer los valores mediante el puntero valores o accediendo directamente  al array  global valoresRegistros_[8];
 		mostrarValores(1); ///muestro valores solo si han cambiadonewLeeAnalogica.s19 desde el anterior.

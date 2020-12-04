@@ -1,42 +1,4 @@
-
-/* ****************************************
- * Lee una entrada analógica y muestra valor por
- * la serial.
- * Al inicio permite elegir en tiempo de ejecución el puerto
- * y el pin dentro del puerto a utilizar
- * No utiliza interrupciones sino polling
-
-  Copyright (C) Alberto F. Hamilton Castro
-  Dpto. de Ingeniería Informática de Sistemas
-  Universidad de La Laguna
-
-  Licencia: GPLv3
-
-  *************************************** */
-
-#include <types.h>
-#include <sys/param.h>
-#include <sys/interrupts.h>
-#include <sys/sio.h>
-#include <sys/locks.h>
-
-//presentar proyecto ad.c ad.h test_ad_xxxx.c  makefile  ... 
-
-/**
-* La rutina de usuario, se ejecutará tanto en el modo initerrupción como en el modo polling. Justo después de leerse los registros de datos correspondientes,
-* se llamará a la rutina de usuario, si así se definió.newLeeAnalogica.s19
-* Prácticamente todas las funciones de la librerían disponen de un modo interactivo, para solicitar al usuario el dato necesario para 
-* configuración de funcionalidad en concreto. Por supuesto, todas se pueden configurar de forma no interactiva.
-* Los resultados de las lecturas de los registros de datos, se mantendrán actualizadas en un array, ya sea mediante polling o por la rutina de interrupción
-* en caso de así haberlo decidido el programador.
-* Por defecto los siguientes bits se configuraran de la siguiente manera:
-*
-* ATDxCTL2 / AFFC = 1 (Basta con acceder a registro de datos para restablecer bit ATDxSTAT0-SCF que indica secuencia terminada
-* ATDxCTL2 / DJM = 0 (Justificación a izquierda)
-* ATDxCTL3 / FIFO = 0 (Modo FIFO desactivado)
-*
-* Inicialmente, el FIFO estará siempre deshabilitado, y la justificación se trabajará siempre a izquierda. Todo lo demás si se podrá parametrizar.
-*/
+#include "ad.h"
 
 
 /**
@@ -55,115 +17,13 @@ uint16_t valoresRegistros_[8];  ///desde el cero al siete se almacenará el valo
 uint16_t valoresAnterioresRegistros_[8]; ///para comprobar si hay diferencias.
 
 void (* punteroUserFunction_)(uint16_t *) = 0; ///Puntero hacia una función
-///
-/********************************************************************************************************************************
- *	Prototipo de funciones
- *********************************************************************************************************************************/
-///
-
-/**
- * @brief	
- * @param	ptr 		El parámetro será la dirección de la función del usuario. Recuerde que debe de tener un parámetro en el que recibirá el puntero al array con los valores de los registros.
- *						Una posible función prototipo sería:  "void userFunction(uint16_t * registros)" donde registros contendrá de 0 a 7 valores, dependiendo del tamaño de la secuencia seleccionada
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_setUserFunction(void (*ptr)(uint16_t *));
-/**
- * @brief	Función que activa o desactiva el tratamiento de los registros de datos mediante interrupción.
- * @param	valor		si 1, se activan las interrupciones, si 0, se desactivan 
- */
-void ad_activarInterrupMode(uint8_t valor);
-
-/** Manejador interrupciones del atd (conversor analógica digital  
-*  Este es el manejador principal, el cual leerá los registros de datos y llamará a la función definida por el usuario en caso de haberse definido.
-*/
-void __attribute__((interrupt))vi_atd(void);  
-
-/**
- * @brief	Función para esperar a que se termine la conversión, modo Polling. Además, se llamará a la función de usuario en caso de haber sido asignada.
- */
-uint16_t * ad_wait_for_data(); ///el array devuelto el la variable valoresRegistros_[8];
-/**
- * @brief	Función para seleccionar el valor de los ciclos de muestreo (2,4,8,16)
- * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_ciclos_muestreo (uint8_t valor, uint8_t interactivo);
-
-/**
- * @brief	Función para seleccionar el valor de la conversión (8 o 10 bits)
- * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_ocho_o_diez_bits (uint8_t valor, uint8_t interactivo);
-/**
- * @brief	Función para seleccionar el tiempo de muestreo
- * @param	valor		valor que definirá el usuario para el modo
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_tiempo_muestreo ();
-/**
- * @brief	Función para seleccionar el pin de inicio en el microcontrolador
- * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada 
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_pin_inicio (uint8_t valor, uint8_t interactivo);
-/**
- * @brief	Función para seleccionar el módulo correspondiente al conversor A/D
- * @param	valor		valor que se define por defecto, en caso de que el usuario no desee modificar nada 
- * @param	interactivo	está a 1 si el usuario quiere interactuar
- */
-void ad_modulo (uint8_t valor, uint8_t interactivo);
-/**
- * @brief	Función que muestra los valores de los registros dependiendo de la configuración, Se puede decidir mostrar solo si se produjeron cambios con respecto
- * 			a la secuencia anterior. Si soloCambios = 1, se mostrarán solo los cambios.
- *		
- */
-void mostrarValores(uint8_t soloCambios);
-
-/**
- * @brief	Función interna de la librería que se encarga de leer los valores de los registros, dependiendo de la cantidad de conversiones seleccionadas.
- *			Se asume que la justificación siempre es a izquierda
- */
-void ad_leer_valores(void);
-/**
- * @brief	Función para activar o desactivar el modo SCAN
- *
- */
-void ad_scanMode(uint8_t valor, uint8_t interactivo);
-
-/**
-*	@brief Función para establecer el número de conversiones a 1, 4 u 8 por secuencia.
-*/
-void ad_cantidadConversiones(uint8_t valor, uint8_t interactivo);
-/**
- * @brief	Función que detiene el funcionamiento del módulo analógico digital
- */
-void ad_stop();
-/**
- * @brief	Función para completar los parámetros y dar por iniciada la conversión.
- *		En ella se hace uso de los atributos globales para usarlos como máscara
- *		para completar los registros correctamente.
- */
-void ad_start();
-
-/**
- * Devuelve la posicion del array de valores de los registros
- */
-//uint16_t * ad_returnValores(void)
-//{
-//	return  &valoresRegistros_[0];
-//}
-
-
-
-
-
 
 /**********************************************************************************************************************************************************
 **********************************************************************************************************************************************************
 *****************************************************          IMPLEMENTACIÓN CÓDIGO   				******************************************************
 ***********************************************************************************************************************************************************/
+
+
 
 
 
@@ -179,7 +39,7 @@ void ad_setUserFunction(void (*ptr)(uint16_t *))
 }
 
 /**
- * @brief	Función que activa o desactiva newLeeAnalogica.s19el tratamiento de los registros de datos mediante interrupción.
+ * @brief	Función que activa o desactiva el tratamiento de los registros de datos mediante interrupción.
  * @param	valor		si 1, se activan las interrupciones, si 0, se desactivan 
  */
 void ad_activarInterrupMode(uint8_t valor) 
@@ -209,13 +69,13 @@ uint16_t * ad_wait_for_data()
 {
 	/* Esperamos a que se termine la conversión modo polling*/
 	while (! (_io_ports[M6812_ATD0STAT0 + DirAD_] & M6812B_SCF));
-	return  &valoresRegistros_[0];
+	
 	///ahora se leen los registros según la configuración. Además esta lectura, restablecerá el bit de secuencia terminada al tener ATDxCTL2 / AFFC a 1.
 	ad_leer_valores();
   
 	
 	 if (punteroUserFunction_!= 0) ///si se estableció una rutina personalizada de usuario, se la llama.
-		(*punteroUserFunction_)(&valoresRegistros_[0]); 
+		(*punteroUserFunction_)(&valoresRegistros_[0]);
 		
 	return  &valoresRegistros_[0];
 }
@@ -427,7 +287,7 @@ void ad_scanMode(uint8_t valor, uint8_t interactivo)
 	char c;
 	if (interactivo)
 	{
-		serial_print("\nActivar modo SCAN Presione: (S/N)");
+		serial_print("\nActivar modo SCAN Presione: (S/N");
 		while((c = serial_recv()) != 'S' && c != 'N');		
 		serial_send(c); /* a modo de confirmación*/
 		scanMode_ = (c == 'S')?1:0;		
@@ -539,6 +399,7 @@ void ad_start()
 			default:
 			break;
 		}
+
 ///Activo o desactivo las interrupciones según valor		
 	if (interrupMode_) ///si interrupciones habilitadas
 		{
@@ -572,180 +433,15 @@ void ad_start()
 }
 
 /**
- * Rutina establecida por el usuario, que se ejecutará después de la lectura de valores tanto en modo polling como por interrupción.
+ * Devuelve la posicion del array de valores de los registros
  */
-void rutinaUsuario(uint16_t * valores)
+uint16_t * ad_returnValores(void)
 {
-	serial_print("\nRutina usuario ejecutada");
-	if (valoresCambiados_)
-		serial_print("\nCambiaron los valores diciendolo desde rutina");
+		return  &valoresRegistros_[0];
+
 }
 
-int main () {
-	
-	uint16_t * valores;
-	
-    	ad_pin_inicio(0,1); 
-    
-		ad_modulo(0,1);
-	
-		ad_ocho_o_diez_bits(0,1); 
-   
-    	ad_ciclos_muestreo(0,1);
-		
-		ad_scanMode(0,1);
-		
-		ad_cantidadConversiones(0,1);
-		
-		///ad_tiempo_muestreo(); Pendiente de revisar
-		
-		///Hasta aquí se han recogido todos los datos en modo interactivo, para poder hacer las pruebas más fácilmente.
-		
-    
-/**************************************newLeeAnalogica.s19*****************************************************
- * Versión Polling sin rutina de usuario.
- ******************************************************************************************/
- 	ad_activarInterrupMode(0); ///Me aseguro de desactivar las interrupciones
-    	ad_start(); ///se inicia el proceso
-	
-	while (1) 
-	{			
-		valores = ad_wait_for_data(); ///espero a una lectura total de la secuencia. También se ejecutaría la rutina de usuario en caso de definirla.
-		///ahora podría leer los valores mediante el puntero valores o accediendo directamente  al array  global valoresRegistros_[8];
-		mostrarValores(1); ///muestro valores solo si han cambiadonewLeeAnalogica.s19 desde el anterior.
-	}
-
-
-/*******************************************************************************************
- * Versión Polling con rutina de usuario.
- ******************************************************************************************/
-/*		ad_activarInterrupMode(0); ///Me aseguro de desactivar las interrupciones
-		ad_setUserFunction(&rutinaUsuario); ///configuro una rutina de usuario.
-	    	ad_start(); ///se inicia el proceso
-	
-	while (1) 
-	{	
-		valores = ad_wait_for_data(); ///espero a una lectura total de la secuencia. También se ejecutaría la rutina de usuario en caso de definirla.
-		///ahora podría leer los valores mediante el puntero valores o accediendo directamente  al array  global valoresRegistros_[8];
-		mostrarValores(1); ///muestro valores solo si han cambiado desde el anterior.
-	}
-*/
-/*******************************************************************************************
- * Versión Interrupcion sin rutina de usuario.
- ******************************************************************************************/
- /*  	ad_activarInterrupMode(1); ///Me aseguro de desactivar las interrupciones
-		ad_setUserFunction(0); ///configuro una rutina de usuario.
-    	ad_start(); ///se inicia el proceso
-		
-		  while(1)
-		  {
-		  	if (valoresCambiados_)
-		  	 {				 
-				serial_print("\nCambiaron los valores diciendolo fuera de la rutina");
-				mostrarValores(1); ///muestro valores solo si han cambiado desde el anterior.
-				
-			 }
-		  }*/
-
-
-/*******************************************************************************************
- * Versión Interrupcion con rutina de usuario.
- ******************************************************************************************/
-/*		ad_activarInterrupMode(1); ///Me aseguro de desactivar las interrupciones
-		ad_setUserFunction(&rutinaUsuario); ///configuro una rutina de usuario.
-    	ad_start(); ///se inicia el proceso
-		
-		  while(1)		  
-			__asm__ __volatile__("wai");
-*/
-
-	
+uint8_t * ad_returnValoresCambiados(void)
+{
+	return  &valoresCambiados_;
 }
-
-///int main () {
-  //char c;
-  ///*Diferencial a usar en los direccionamientos para distinguir puerto 0 y 1 */
-  //uint16_t DirAD;
-  //uint8_t Pin; /*Pin dentro del puerto del que se va a leer */
-
-  //uint16_t resultadoAnterior = 0;M6812_ATD0CTL0
-
-  ///* Deshabilitamos interrupciones */
-  //lock ();
-
-  ///*Encendemos led*/
-  //_io_ports[M6812_DDRG] |= M6812B_PG7;
-  //_io_ports[M6812_PORTG] |= M6812B_PG7;
-
-
-  //serial_init();
-  //serial_print("\nLeeAnalogica.c ===========\n");
-
-  //while(1) {
-    //// Quitamos posible pulsación pendiente
-    //if (serial_receive_pending()) serial_recv();
-    ///* Elección del puerto */
-    //serial_print("\nPuerto conversor a utilizar (0 o 1)!);
-    //while((c = serial_recv()) != '0' && c != '1');
-    //serial_send(c); /* a modo de confirmación*/
-    //DirAD = (c == '0')?0:(M6812_ATD1CTL0 - M6812_ATD0CTL0);
-
-    //serial_print("\nUsando desplazamiento ");
-    //serial_printdecword(DirAD);
-
-    ///* Elección del pin dentro del puerto */
-    //serial_print("\nPin del puerto a utilizar (0 - 7)?:");
-    //while((c = serial_recv()) < '0' && c > '7');
-    //serial_send(c); /* a modo de confirmación*/
-    //Pin = c - '0';
-
-    ///*Pasamos a configurar AD correspondiente*/
-    //_io_ports[M6812_ATD0CTL2 + DirAD] = M6812B_ADPU; /*Encendemos, justf. izda*/
-    //_io_ports[M6812_ATD0CTL3 + DirAD] = 0; /*Sin fifo*/
-
-    ///* resolución de 10 bits y 16 ciclos de muestreo */
-    //_io_ports[M6812_ATD0CTL4 + DirAD] = M6812B_RES10 | M6812B_SMP0 | M6812B_SMP1;
-
-    ///* Modo scan con 8 resultados sobre el pin seleccionado */
-    //_io_ports[M68 //serial_print("\nConvirtiendo (pulsa para salir)\n");
-
-    //char simbolo[] = "/|\\-*";
-    //uint16_t itera = 0;
-//#define ITERA_CAMBIO (5000)
-    //while(!serial_receive_pending()) {
-
-      //itera++;
-      //if (!(itera % ITERA_CAMBIO)) {
-        //uint8_t simAct = itera/ITERA_CAMBIO;
-        //if(!simbolo[simAct]) {
-          //itera = 0;
-          //simAct = 0;
-        //}
-        //serial_send(simbolo[simAct]);
-        //serial_send('\b');
-      //}
-
-      ///* Esperamos a que se termine la conversión */
-      //while(! (_io_ports[M6812_ATD0STAT0 + DirAD] & M6812B_SCF));
-
-      ///*Invertimos el led*/
-      //_io_ports[M6812_PORTG] ^= M6812B_PG7;
-
-      ///*Vemos si los 8 resultados son iguales */
-      //uint16_t resultado = _IO_PORTS_W(M6812_ADR00H + DirAD);
-      //uint8_t iguales = 1;
-      //for(uint8_t i = 0; iguales && i < 8; i++)
-        //iguales = resultado == _IO_PORTS_W(M6812_ADR00H + DirAD + 2 * i);
-      //if(! iguales)
-        //continue;
-      //if (resultado == resultadoAnterior)
-        //continue;
-
-      ///* Los 8 resultados son iguales y distintos a lo que teníamos antes*/
-      //serial_print("Nuevo valor = ");
-      //serial_printdecword(resultado);
-      //serial_send('\n');
-      //resultadoAnterior = resultado;
-    //}
-//}
-
