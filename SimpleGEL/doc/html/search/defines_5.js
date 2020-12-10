@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['itera_5fcambio',['ITERA_CAMBIO',['../_lee_analogica_8c.html#a1b9195c03b97c492529eb795c60c59f0',1,'LeeAnalogica.c']]]
+  ['grano_5ffino',['GRANO_FINO',['../pwm_8h.html#a8354ec8b2bf81691c822204a4f66cee8',1,'pwm.h']]],
+  ['grano_5fgrueso',['GRANO_GRUESO',['../pwm_8h.html#a30f84752f89bd26e5fe5700097602a91',1,'pwm.h']]]
 ];

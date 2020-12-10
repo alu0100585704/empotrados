@@ -1,4 +1,6 @@
 var searchData=
 [
-  ['usg_5f2_5fticks',['USG_2_TICKS',['../_onda_cuadrada_o_c2_8c.html#a946ce8e303aa14b0d5769b9845abea86',1,'USG_2_TICKS():&#160;OndaCuadradaOC2.c'],['../_onda_general_o_c2_8c.html#a946ce8e303aa14b0d5769b9845abea86',1,'USG_2_TICKS():&#160;OndaGeneralOC2.c'],['../_porcentaje_alto_8c.html#a946ce8e303aa14b0d5769b9845abea86',1,'USG_2_TICKS():&#160;PorcentajeAlto.c'],['../_saca7_segmentos_8c.html#a946ce8e303aa14b0d5769b9845abea86',1,'USG_2_TICKS():&#160;Saca7Segmentos.c']]]
+  ['reloj_5fa',['RELOJ_A',['../pwm_8h.html#a07038dc2e6a6ba8f89e675fb1b8695b6',1,'pwm.h']]],
+  ['reloj_5fb',['RELOJ_B',['../pwm_8h.html#ad287339d4a989c1dfcd8d46ea96ad1fb',1,'pwm.h']]],
+  ['return',['RETURN',['../pwm_8h.html#a6a0e6b80dd3d5ca395cf58151749f5e2',1,'pwm.h']]]
 ];

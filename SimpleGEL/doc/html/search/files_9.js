@@ -1,8 +1,11 @@
 var searchData=
 [
-  ['saca7segmentos_2ec',['Saca7Segmentos.c',['../_saca7_segmentos_8c.html',1,'']]],
-  ['sio_2ec',['sio.c',['../sio_8c.html',1,'']]],
-  ['sio_2eh',['sio.h',['../sio_8h.html',1,'']]],
-  ['sprintf_2ec',['sprintf.c',['../sprintf_8c.html',1,'']]],
-  ['stdio_2eh',['stdio.h',['../stdio_8h.html',1,'']]]
+  ['param_2eh',['param.h',['../param_8h.html',1,'']]],
+  ['porcentajealto_2ec',['PorcentajeAlto.c',['../_porcentaje_alto_8c.html',1,'']]],
+  ['ports_2eh',['ports.h',['../ports_8h.html',1,'']]],
+  ['ports_5fdef_2eh',['ports_def.h',['../ports__def_8h.html',1,'']]],
+  ['premain_2ec',['premain.c',['../premain_8c.html',1,'']]],
+  ['printf_2ec',['printf.c',['../printf_8c.html',1,'']]],
+  ['pwm_2ec',['pwm.c',['../pwm_8c.html',1,'']]],
+  ['pwm_2eh',['pwm.h',['../pwm_8h.html',1,'']]]
 ];

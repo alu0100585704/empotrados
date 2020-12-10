@@ -1,4 +1,12 @@
 var searchData=
 [
-  ['vsprintf',['vsprintf',['../sprintf_8c.html#aeb2d75a5e874d72b09aba28e959c1ed7',1,'sprintf.c']]]
+  ['printf',['printf',['../printf_8c.html#ae3e208df31f6201d65e1da7eaec531d2',1,'printf.c']]],
+  ['pwm_5faling',['pwm_aling',['../group__pwm.html#gaf2be2cac6290efbd3ae04d5b3fc664ad',1,'pwm_aling(bool alineamiento, int8_t canal_seleccionado):&#160;pwm.c'],['../group__pwm.html#gaf2be2cac6290efbd3ae04d5b3fc664ad',1,'pwm_aling(bool alineamiento_izq, int8_t canal_seleccionado):&#160;pwm.c']]],
+  ['pwm_5fdeshabilitacion_5fcanal',['pwm_deshabilitacion_canal',['../group__pwm.html#gaef4b516c5705da604d93bdd76ca61687',1,'pwm_deshabilitacion_canal(int8_t canal):&#160;pwm.c'],['../group__pwm.html#gaef4b516c5705da604d93bdd76ca61687',1,'pwm_deshabilitacion_canal(int8_t canal):&#160;pwm.c']]],
+  ['pwm_5fhabilitacion_5fcanal',['pwm_habilitacion_canal',['../group__pwm.html#ga77287db3ed9341480a1c3c13dec94041',1,'pwm_habilitacion_canal(int8_t canal):&#160;pwm.c'],['../group__pwm.html#ga77287db3ed9341480a1c3c13dec94041',1,'pwm_habilitacion_canal(int8_t canal):&#160;pwm.c']]],
+  ['pwm_5fmodificar_5fetapas',['pwm_modificar_etapas',['../group__pwm.html#ga2b65f62d84541b4945fb57b6054f8990',1,'pwm_modificar_etapas(int8_t etapas, int8_t canal):&#160;pwm.c'],['../group__pwm.html#ga2b65f62d84541b4945fb57b6054f8990',1,'pwm_modificar_etapas(int8_t etapas, int8_t canal):&#160;pwm.c']]],
+  ['pwm_5fmodificar_5fporcentaje',['pwm_modificar_porcentaje',['../group__pwm.html#gabc39ed84b6648ba7f33e3a3f1fa9b871',1,'pwm_modificar_porcentaje(int8_t porcentaje, int8_t canal):&#160;pwm.c'],['../group__pwm.html#gabc39ed84b6648ba7f33e3a3f1fa9b871',1,'pwm_modificar_porcentaje(int8_t porcentaje, int8_t canal):&#160;pwm.c']]],
+  ['pwm_5fperiod',['pwm_period',['../group__pwm.html#ga09c0d22c8c7bf7c4fd1f8e52bd2ed075',1,'pwm_period(int8_t etapas_, int8_t canal):&#160;pwm.c'],['../group__pwm.html#ga09c0d22c8c7bf7c4fd1f8e52bd2ed075',1,'pwm_period(int8_t PERetapas_, int8_t canal):&#160;pwm.c']]],
+  ['pwm_5fset_5fclock',['pwm_set_clock',['../group__pwm.html#gac682e3dc1c0ad458ca3c94d99088e1c3',1,'pwm_set_clock(bool Reloj_A, int8_t factor_N, bool grano_fino, int8_t valor_contador):&#160;pwm.c'],['../group__pwm.html#gac682e3dc1c0ad458ca3c94d99088e1c3',1,'pwm_set_clock(bool Reloj_A, int8_t factor_N, bool grano_fino, int8_t valor_contador):&#160;pwm.c']]],
+  ['pwm_5fset_5fpolarity',['pwm_set_polarity',['../group__pwm.html#ga1bfa05f1416cab935c774173ebb0c570',1,'pwm_set_polarity(int8_t puerto_seleccionado, bool Alta):&#160;pwm.c'],['../group__pwm.html#ga1bfa05f1416cab935c774173ebb0c570',1,'pwm_set_polarity(int8_t puerto_seleccionado, bool Alta):&#160;pwm.c']]]
 ];

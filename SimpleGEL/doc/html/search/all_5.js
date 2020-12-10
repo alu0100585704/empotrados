@@ -1,7 +1,6 @@
 var searchData=
 [
-  ['false',['FALSE',['../types_8h.html#aa93f0eb578d23995850d61f7d61c55c1',1,'types.h']]],
-  ['file',['FILE',['../stdio_8h.html#aeab7db8ae8b023a842a5d8cdf651bae5',1,'stdio.h']]],
-  ['filename_5fmax',['FILENAME_MAX',['../stdio_8h.html#aada6f64b4a36eb39c9b4cfd44eef7b36',1,'stdio.h']]],
-  ['fopen_5fmax',['FOPEN_MAX',['../stdio_8h.html#aa188a2e288c10a684622814c51337465',1,'stdio.h']]]
+  ['eof',['EOF',['../stdio_8h.html#a59adc4c82490d23754cd39c2fb99b0da',1,'stdio.h']]],
+  ['exit_5ffailure',['EXIT_FAILURE',['../group__gpio.html#ga73efe787c131b385070f25d18b7c9aa4',1,'gpio.h']]],
+  ['exit_5fsuccess',['EXIT_SUCCESS',['../group__gpio.html#ga687984f47d8cce148d1b914d2b79612a',1,'gpio.h']]]
 ];
