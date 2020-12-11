@@ -59,6 +59,9 @@ include $(BASEDIR)/config/make.defs
 #	$(CC) -c -o $@ $<
 
 # Lo siguiente es con `.elf` y añadir `./../lib/libutil.a`
-test_%.elf : test_%.o ad.o
-	$(CC)  $(LDFLAGS) -o $@ $< ad.o ./../lib/libutil.a
+prueba_sieteseg.elf : prueba_sieteseg.o sieteseg.o
+	$(CC)  $(LDFLAGS) -o $@ $< sieteseg.o ./../lib/libutil.a
 	
+	# Lo siguiente es con `.elf` y añadir `./../lib/libutil.a`
+prueba_potenciometro.elf : prueba_potenciometro.o sieteseg.o
+	$(CC)  $(LDFLAGS) -o $@ $< sieteseg.o ./../lib/libutil.a
