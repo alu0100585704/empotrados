@@ -3,6 +3,7 @@
 #include <gpio.h>
 #include "teclado.h"
 
+
 int main ()
 {
   serial_init();
@@ -10,23 +11,18 @@ int main ()
 
 Optional data;
 
-  keyboard_init();
+  teclado_init();
 
   
   while (1)
   {
-	  data = pio_read_pin(SET_PIN_H, 2);	  	  
-	  serial_print("\nPin 2 = Columna 3");
-	  serial_printdecbyte(data.data);
+///    serial_print("\n\nPulsa para nueva captura");
+   // serial_recv();
 
-  	  data = pio_read_pin(SET_PIN_H, 4);	  	  
-	  serial_print("\nPin 2 = Columna 1");
-	  serial_printdecbyte(data.data);
-	  
-  	  data = pio_read_pin(SET_PIN_H, 6);	  	  
-	  serial_print("\nPin 2 = Columna 2");
-	  serial_printdecbyte(data.data);
-
+ char tecla;
+    tecla = teclado_getch();	 
+    serial_print("\n\nPulsada tecla : ");
+     serial_print(&tecla);
 
 	  
   }
