@@ -27,7 +27,7 @@ int main ()
     tecla = teclado_getch_timeout(2000);
     serial_print("\nPulsada tecla : ");
      serial_print(&tecla);
-
+	serial_send('\n');
 	  
   }
 }
