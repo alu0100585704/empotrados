@@ -24,13 +24,12 @@
 #define F3 2
 #define F2 1
 
-/*
-char teclado_getch(): espera a que se realice una pulsación en el teclado y
-devuelve código ASCII de la teclas pulsada.
-char teclado_getch_timeout(uint32_t milis): espera a que se realice una
-pulsación en el teclado y devuelve código ASCII Si no hay pulsación en
-milis milisegundos devuelve el carácter 'T'.
-*/
+
+
+char teclado_getch_timeout(uint32_t milis); // espera a que se realice una
+//pulsación en el teclado y devuelve código ASCII Si no hay pulsación en
+//milis milisegundos devuelve el carácter 'T'.
+
 char teclado_getch();
 
 

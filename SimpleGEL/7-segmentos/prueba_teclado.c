@@ -9,19 +9,23 @@ int main ()
   serial_init();
   serial_print("\nFuncion del Teclado");
 
-Optional data;
+ char tecla;
 
   teclado_init();
+  serial_print("\nPulse cualquier tecla del teclado: ");
+  tecla = teclado_getch();
+  serial_print("\nPulsada tecla : ");
+  serial_print(&tecla);
 
-  
+  serial_print("\nPulse cualquier tecla del teclado o se recibirá T a los dos segundos: ");
+
   while (1)
   {
-///    serial_print("\n\nPulsa para nueva captura");
-   // serial_recv();
 
- char tecla;
-    tecla = teclado_getch();	 
-    serial_print("\n\nPulsada tecla : ");
+
+
+    tecla = teclado_getch_timeout(2000);
+    serial_print("\nPulsada tecla : ");
      serial_print(&tecla);
 
 	  
