@@ -486,8 +486,7 @@ return tecla;
  
 void teclado_init ()
 {
-Optional data;
-	  timer_init(3); ///factor de escala respecto al reloj principal
+	 timer_init(3); ///factor de escala respecto al reloj principal
 	
 	gpio_pup_enable(M6812_PORTH); ///activamos resistencia de pull up en el registro
 	
