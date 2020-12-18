@@ -60,7 +60,7 @@ void sieteSeg_init ()
 {
 	///configuramos puerto G con todos sus pines en modo salida
   gpio_set_output_all_reg(SET_PIN_G);
-  sieteSeg_valor(50);
+  sieteSeg_valor(0);
   timer_init(3); ///factor de escala respecto al reloj principal
   timer_repeat_call(5000, &refresh); ///valor en microsegundos de llamada
   cual = 0;

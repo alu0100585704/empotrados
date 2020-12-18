@@ -9,29 +9,42 @@
 
 int main()
 {
-	
-  serial_init();
+  sieteSeg_init(); ///inicializamos el 7 segmentos
+  serial_init(); ///inicialiamos la UART
+  pwm_set_clock(RELOJ_A,7,GRANO_FINO,3);
+  pwm_set_polarity(0,ALTA);
+  pwm_aling(ALINEAMIENTO_IZQ,0);
+  pwm_period(200,0);
+  pwm_habilitacion_canal(0);
+  pwm_modificar_etapas(20,0);
   serial_print("\nFuncion del Motor");
   
- char tecla;
-
+ char tecla='T';
+ int8_t potencia = 0;
   teclado_init();
-  serial_print("\nPulse cualquier tecla del teclado: ");
-	
-  tecla = teclado_getch();
-  serial_print("\nPulsada tecla : ");
-  serial_print(&tecla);
-  serial_print("\nPulse cualquier tecla del teclado o se recibirá T a los dos segundos: ");
 
   while (1)
   {
 
-
-
-    tecla = teclado_getch_timeout(2000);
-    serial_print("\nPulsada tecla : ");
-     serial_print(&tecla);
+  serial_print("\nIntroduzca potencia del motor 0-100");
+  serial_print("\nUtilize '*' para confirmar o '#' para cancelar");
+   	
+  while (tecla != '#') ///mientras sea distinto de cancelar
+  {
+	tecla = teclado_getch();  
+	serial_print(&tecla);	
+	if (tecla == '*')
+	{
+		  pwm_modificar_porcentaje(potencia,0);
+	}
+	if (tecla != '#')
+	{
+	  potencia = tecla - '0';
+	  sieteSeg_valor((uint16_t) potencia);
+	}	
 	
+  }
+	sieteSeg_valor(0);
 	  
   }
 }

@@ -69,3 +69,7 @@ prueba_potenciometro.elf : prueba_potenciometro.o sieteseg.o
 	# Lo siguiente es con `.elf` y añadir `./../lib/libutil.a`
 prueba_teclado.elf : prueba_teclado.o teclado.o
 	$(CC)  $(LDFLAGS) -o $@ $< teclado.o ./../lib/libutil.a
+	
+	# Lo siguiente es con `.elf` y añadir `./../lib/libutil.a`
+prueba_motor.elf : prueba_motor.o motor.o sieteseg.o teclado.o
+	$(CC)  $(LDFLAGS) -o $@ $< motor.o sieteseg.o teclado.o ./../lib/libutil.a	
