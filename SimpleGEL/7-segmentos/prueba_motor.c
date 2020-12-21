@@ -24,41 +24,52 @@ int main()
   pwm_modificar_etapas(20,0);
 
 
- //pwm_habilitacion_canal(0);
- pwm_modificar_porcentaje(5,0);
+ pwm_habilitacion_canal(0);
+ pwm_modificar_porcentaje(0,0);
 
 
- teclado_init();
-  sieteSeg_init(); ///inicializamos el 7 segmentos
- tecla = teclado_getch();
-serial_print("\npasado siete segmentos");
+teclado_init();
+sieteSeg_init(); ///inicializamos el 7 segmentos
 
   while (1)
   {
 
   serial_print("\nIntroduzca potencia del motor 0-9");
   serial_print("\nUtilize '*' para confirmar o '#' para cancelar");
-   	
-  while (tecla != '#') ///mientras sea distinto de cancelar
-  {
+  	
+
 	tecla = teclado_getch();  
 	serial_print("\n");	
-	serial_print(&tecla);
-	
+	serial_send(tecla);
 
-	if (tecla == '*')
+if (tecla == '*')
+{
+serial_print("\nModificando potencia a: ");
+serial_printdecbyte(potencia);
+	pwm_modificar_porcentaje(potencia,0);
+}
+
+if (tecla == '#')
 	{
-		  pwm_modificar_porcentaje(potencia,0);
-	}
-else if (tecla != '#')
-	{
-	  potencia = tecla - '0';
-	  sieteSeg_valor((uint16_t) potencia);
+	  potencia = 0;
+	 pwm_modificar_porcentaje(0,0);
+serial_print("\nModificando potencia a: ");
+serial_printdecbyte(potencia);
+	 
 	}	
-	
-  }
-	sieteSeg_valor(0);
-	tecla='T';
+
+        tecla = tecla -'0';
+ 
+if ((tecla >= 0) && (tecla <=9))
+{
+serial_print("\nValor de  potencia a: ");
+serial_printdecbyte(tecla);
+	potencia = tecla;
+
+	sieteSeg_valor((uint16_t) potencia);
+
+}	
+
 	  
   }
 }
