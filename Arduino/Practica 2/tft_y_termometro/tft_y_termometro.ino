@@ -1,47 +1,31 @@
-/**************************************************************************
-  This is a library for several Adafruit displays based on ST77* drivers.
+///librerías para práctica 1(termómetro)
+#include <Wire.h> 
+#include <LiquidCrystal_I2C.h>
 
-  Works with the Adafruit 1.8" TFT Breakout w/SD card
-    ----> http://www.adafruit.com/products/358
-  The 1.8" TFT shield
-    ----> https://www.adafruit.com/product/802
-  The 1.44" TFT breakout
-    ----> https://www.adafruit.com/product/2088
-  The 1.14" TFT breakout
-  ----> https://www.adafruit.com/product/4383
-  The 1.3" TFT breakout
-  ----> https://www.adafruit.com/product/4313
-  The 1.54" TFT breakout
-    ----> https://www.adafruit.com/product/3787
-  The 2.0" TFT breakout
-    ----> https://www.adafruit.com/product/4311
-  as well as Adafruit raw 1.8" TFT display
-    ----> http://www.adafruit.com/products/618
-
-  Check out the links above for our tutorials and wiring diagrams.
-  These displays use SPI to communicate, 4 or 5 pins are required to
-  interface (RST is optional).
-
-  Adafruit invests time and resources providing this open source code,
-  please support Adafruit and open-source hardware by purchasing
-  products from Adafruit!
-
-  Written by Limor Fried/Ladyada for Adafruit Industries.
-  MIT license, all text above must be included in any redistribution
- **************************************************************************/
+///Librerías para practica 2 (juego retro)
 
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 
+///variable para práctica 1
 
-  #define TFT_CS         9
-  #define TFT_RST        10
-  #define TFT_DC         8
+#define Voltimetro A3
+#define Boton 0 ///uso entrada pint 7 digital
+
+LiquidCrystal_I2C lcd(0x3F, 16, 2); // 0x27 o 0x3F
+int celsius = 0; // variable que define si se muestra la temperatura en Celsius o en Farenheit. Cero celsius, otro valor farenheit
+int boton = 0; ///variable que indica a 1 boton apretado, a 0 botón sin apretar.
+unsigned long tiempoInicial = 0; ///tiempo desde que se arrancó el arduino
+unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actualiza las pantalla tanto por Serial.print como la LCD. Esta variable se incremente en 1000 ms cada vez que se actualiza la pantalla.
 
 
+//variables para práctica 2
 
+#define TFT_CS         9
+#define TFT_RST        10
+#define TFT_DC         8
 // OPTION 1 (recommended) is to use the HARDWARE SPI pins, which are unique
 // to each board and not reassignable. For Arduino Uno: MOSI = pin 11 and
 // SCLK = pin 13. This is the fastest mode of operation and is required if
@@ -68,11 +52,30 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 float p = 3.1415926;
 
-void setup(void) {
-  Serial.begin(9600);
-  Serial.print(F("Hello! ST77xx TFT Test"));
 
-  // Use this initializer if using a 1.8" TFT screen:
+void setup() {
+  ///código para práctica 1
+  Serial.begin(9600);
+   lcd.init();
+
+ // Turn on the blacklight and print a message.
+  lcd.backlight();
+
+  lcd.begin(16, 2);
+  lcd.setCursor(0,0);
+  lcd.print("Inicializando...");
+  delay(1000);
+  lcd.setCursor(0,0);
+  lcd.print("                ");
+  
+  // definir el pin del boton como entrada
+  // ponerlo como entrada pullup
+
+  pinMode(Boton, INPUT_PULLUP);
+
+//código para práctica 2
+
+ // Use this initializer if using a 1.8" TFT screen:
   tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 
   // OR use this initializer if using a 1.8" TFT screen with offset such as WaveShare:
@@ -109,7 +112,7 @@ void setup(void) {
 
   // large block of text
   tft.fillScreen(ST77XX_BLACK);
-  testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST77XX_WHITE);
+ // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST77XX_WHITE);
   delay(1000);
 
   // tft print function!
@@ -150,14 +153,76 @@ void setup(void) {
 
   Serial.println("done");
   delay(1000);
+  
 }
 
 void loop() {
-  tft.invertDisplay(true);
+  // put your main code here, to run repeatedly:
+
+  unsigned valorDigital;   
+  int actualizarPantalla; ///se pone a 1 para actualizar la pantall cuando ha pasado 1000 milisegundos.
+  
+  tiempoInicial = millis();
+  if (tiempoInicial > tiempoFinal)
+  {
+      tiempoFinal = tiempoFinal + 1000; //para espera de 1 segundo
+      actualizarPantalla = 1;
+  }
+  else 
+      actualizarPantalla = 0;
+  
+  valorDigital = analogRead(Voltimetro);
+    
+  ///revisar si se ha presionado el boton
+  if ((digitalRead(Boton) == LOW) && (boton == 0))
+   {
+    boton = 1;
+    celsius = ~celsius; ///invierto entre celsius y farenheit
+   }
+   else if (digitalRead(Boton) == HIGH)
+                boton = 0;
+    
+ 
+
+  float voltios = 100.0 * (5.0/1024.0) * (float) valorDigital;
+
+
+if (actualizarPantalla == 1)
+{
+  if (celsius == 0) {
+  
+    float Temperatura = (voltios/11.0); ///11 es el valor que el apmplificador operacional en modo inversor aplica a la señal de entrada en base a las resistencia de 10Kh y 1Kh
+  
+  
+    lcd.setCursor(0,0);
+    lcd.print(Temperatura);
+    lcd.print(" ");
+    lcd.print("C");
+    
+    Serial.print(Temperatura);
+    Serial.println(" C");
+
+  } else { // Hacer la conversion a Farenheit
+
+    float Temperatura = (voltios/11.0) / 0.556 + 32  ; ///11 es el valor que el apmplificador operacional en modo inversor aplica a la señal de entrada en base a las resistencia de 10Kh y 1Kh
+  
+  
+    lcd.setCursor(0,0);
+    lcd.print(Temperatura);
+    lcd.print(" ");
+    lcd.print("F");
+
+    Serial.print(Temperatura);
+    Serial.println(" F");
+    
+  }
+   tft.invertDisplay(true);
   delay(500);
   tft.invertDisplay(false);
   delay(500);
 }
+}
+
 
 void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
@@ -287,7 +352,9 @@ void testroundrects() {
     color+=100;
   }
 }
-
+//*
+///funciones para pruebas tft
+///*
 void tftPrintTest() {
   tft.setTextWrap(false);
   tft.fillScreen(ST77XX_BLACK);
