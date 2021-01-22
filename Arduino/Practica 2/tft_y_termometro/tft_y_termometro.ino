@@ -12,7 +12,7 @@
 ///variable para práctica 1
 
 #define Voltimetro A3
-#define Boton 0 ///uso entrada pint 7 digital
+#define Boton 0 ///uso entrada pint 0 digital
 
 LiquidCrystal_I2C lcd(0x3F, 16, 2); // 0x27 o 0x3F
 int celsius = 0; // variable que define si se muestra la temperatura en Celsius o en Farenheit. Cero celsius, otro valor farenheit
@@ -26,6 +26,10 @@ unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actu
 #define TFT_CS         9
 #define TFT_RST        10
 #define TFT_DC         8
+
+#define joystickX      A2
+#define joystickY      A1 
+#define yoystickButton A0 ///utilizar como digital. 
 // OPTION 1 (recommended) is to use the HARDWARE SPI pins, which are unique
 // to each board and not reassignable. For Arduino Uno: MOSI = pin 11 and
 // SCLK = pin 13. This is the fastest mode of operation and is required if
