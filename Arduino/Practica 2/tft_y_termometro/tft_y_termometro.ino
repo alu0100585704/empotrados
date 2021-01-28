@@ -8,10 +8,12 @@
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
+#include "logo_ull.c"
+
 
 ///variable para práctica 1
 
-#define Voltimetro A3
+#define Voltimetro A0
 #define Boton 0 ///uso entrada pint 0 digital
 
 LiquidCrystal_I2C lcd(0x3F, 16, 2); // 0x27 o 0x3F
@@ -23,20 +25,25 @@ unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actu
 
 //variables para práctica 2
 
-#define TFT_CS         9
-#define TFT_RST        10
+#define TFT_CS         10
+#define TFT_RST        9
 #define TFT_DC         8
 
-#define joystickX      A2
+//#define TFT_RST        4
+//#define TFT_CS         6
+//#define TFT_DC         5
+
 #define joystickY      A1 
-#define yoystickButton A0 ///utilizar como digital. 
+#define joystickX      A2
+#define joystickButtom A3 ///utilizar como digital. 
+        
 // OPTION 1 (recommended) is to use the HARDWARE SPI pins, which are unique
 // to each board and not reassignable. For Arduino Uno: MOSI = pin 11 and
 // SCLK = pin 13. This is the fastest mode of operation and is required if
 // using the breakout board's microSD card.
 
 // For 1.44" and 1.8" TFT with ST7735 use:
-Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
+//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 // For 1.14", 1.3", 1.54", and 2.0" TFT with ST7789:
 //Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
@@ -44,11 +51,11 @@ Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
 
 // OPTION 2 lets you interface the display using ANY TWO or THREE PINS,
 // tradeoff being that performance is not as fast as hardware SPI above.
-//#define TFT_MOSI 11  // Data out
-//#define TFT_SCLK 13  // Clock out
+#define TFT_MOSI 12  // Data out
+#define TFT_SCLK 13  // Clock out
 
 // For ST7735-based displays, we will use this call
-//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
+Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
 // OR for the ST7789-based displays, we will use this call
 //Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
@@ -79,11 +86,11 @@ void setup() {
 
 //código para práctica 2
 
- // Use this initializer if using a 1.8" TFT screen:
-  tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
+ //// Use this initializer if using a 1.8" TFT screen:
+//  tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
 
   // OR use this initializer if using a 1.8" TFT screen with offset such as WaveShare:
-  // tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
+   tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
 
   // OR use this initializer (uncomment) if using a 1.44" TFT:
   //tft.initR(INITR_144GREENTAB); // Init ST7735R chip, green tab
@@ -105,17 +112,21 @@ void setup() {
   // may end up with a black screen some times, or all the time.
   //tft.setSPISpeed(40000000);
 
-  Serial.println(F("Initialized"));
+   
+  tft.fillScreen(ST7735_BLACK);
+ 
 
-  uint16_t time = millis();
-  tft.fillScreen(ST77XX_BLACK);
-  time = millis() - time;
+ 
+ tft.drawRGBBitmap(0,0,logo_ull,30,30);
+  
 
-  Serial.println(time, DEC);
-  delay(500);
+  delay(2000);
 
+
+ 
   // large block of text
-  tft.fillScreen(ST77XX_BLACK);
+  tft.fillScreen(ST7735_BLACK);
+  
  // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST77XX_WHITE);
   delay(1000);
 
@@ -128,11 +139,11 @@ void setup() {
   delay(500);
 
   // line draw test
-  testlines(ST77XX_YELLOW);
+  testlines(ST7735_YELLOW);
   delay(500);
 
   // optimized lines
-  testfastlines(ST77XX_RED, ST77XX_BLUE);
+  testfastlines(ST7735_RED, ST7735_BLUE);
   delay(500);
 
   testdrawrects(ST77XX_GREEN);
@@ -141,8 +152,8 @@ void setup() {
   testfillrects(ST77XX_YELLOW, ST77XX_MAGENTA);
   delay(500);
 
-  tft.fillScreen(ST77XX_BLACK);
-  testfillcircles(10, ST77XX_BLUE);
+  tft.fillScreen(ST7735_BLACK);
+  testfillcircles(10, ST7735_BLUE);
   testdrawcircles(10, ST77XX_WHITE);
   delay(500);
 
@@ -190,6 +201,9 @@ void loop() {
 
   float voltios = 100.0 * (5.0/1024.0) * (float) valorDigital;
 
+ 
+//Serial.println("boton joystic");
+//Serial.println(analogRead(joystickButtom));
 
 if (actualizarPantalla == 1)
 {
@@ -220,10 +234,10 @@ if (actualizarPantalla == 1)
     Serial.println(" F");
     
   }
-   tft.invertDisplay(true);
-  delay(500);
-  tft.invertDisplay(false);
-  delay(500);
+ //  tft.invertDisplay(true);
+ // delay(500);
+ // tft.invertDisplay(false);
+ // delay(500);
 }
 }
 
