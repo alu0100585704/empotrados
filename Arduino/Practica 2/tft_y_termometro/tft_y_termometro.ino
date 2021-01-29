@@ -1,3 +1,8 @@
+/*
+ *Programa demostración TFT y LCD. 
+ * @author Juan Siverio Rojas
+ */
+
 ///librerías para práctica 1(termómetro)
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -21,7 +26,7 @@ int celsius = 0; // variable que define si se muestra la temperatura en Celsius 
 int boton = 0; ///variable que indica a 1 boton apretado, a 0 botón sin apretar.
 unsigned long tiempoInicial = 0; ///tiempo desde que se arrancó el arduino
 unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actualiza las pantalla tanto por Serial.print como la LCD. Esta variable se incremente en 1000 ms cada vez que se actualiza la pantalla.
-
+unsigned option = 0; ///Indico que estoy en la primera opción de menu.
 
 //variables para práctica 2
 
@@ -33,148 +38,21 @@ unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actu
 //#define TFT_CS         6
 //#define TFT_DC         5
 
-#define joystickY      A1 
-#define joystickX      A2
+#define joystickY      A1   ///eje X
+#define joystickX      A2   ///Eje y
 #define joystickButtom A3 ///utilizar como digital. 
         
-// OPTION 1 (recommended) is to use the HARDWARE SPI pins, which are unique
-// to each board and not reassignable. For Arduino Uno: MOSI = pin 11 and
-// SCLK = pin 13. This is the fastest mode of operation and is required if
-// using the breakout board's microSD card.
-
-// For 1.44" and 1.8" TFT with ST7735 use:
-//Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_RST);
-
-// For 1.14", 1.3", 1.54", and 2.0" TFT with ST7789:
-//Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_RST);
-
-
-// OPTION 2 lets you interface the display using ANY TWO or THREE PINS,
-// tradeoff being that performance is not as fast as hardware SPI above.
 #define TFT_MOSI 12  // Data out
 #define TFT_SCLK 13  // Clock out
 
 // For ST7735-based displays, we will use this call
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
-// OR for the ST7789-based displays, we will use this call
-//Adafruit_ST7789 tft = Adafruit_ST7789(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
-
-
 float p = 3.1415926;
 
-
-void setup() {
-  ///código para práctica 1
-  Serial.begin(9600);
-   lcd.init();
-
- // Turn on the blacklight and print a message.
-  lcd.backlight();
-
-  lcd.begin(16, 2);
-  lcd.setCursor(0,0);
-  lcd.print("Inicializando...");
-  delay(1000);
-  lcd.setCursor(0,0);
-  lcd.print("                ");
-  
-  // definir el pin del boton como entrada
-  // ponerlo como entrada pullup
-
-  pinMode(Boton, INPUT_PULLUP);
-
-//código para práctica 2
-
- //// Use this initializer if using a 1.8" TFT screen:
-//  tft.initR(INITR_BLACKTAB);      // Init ST7735S chip, black tab
-
-  // OR use this initializer if using a 1.8" TFT screen with offset such as WaveShare:
-   tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab
-
-  // OR use this initializer (uncomment) if using a 1.44" TFT:
-  //tft.initR(INITR_144GREENTAB); // Init ST7735R chip, green tab
-
-  // OR use this initializer (uncomment) if using a 0.96" 160x80 TFT:
-  //tft.initR(INITR_MINI160x80);  // Init ST7735S mini display
-
-  // OR use this initializer (uncomment) if using a 1.3" or 1.54" 240x240 TFT:
-  //tft.init(240, 240);           // Init ST7789 240x240
-
-  // OR use this initializer (uncomment) if using a 2.0" 320x240 TFT:
-  //tft.init(240, 320);           // Init ST7789 320x240
-
-  // OR use this initializer (uncomment) if using a 1.14" 240x135 TFT:
-  //tft.init(135, 240);           // Init ST7789 240x135
-  
-  // SPI speed defaults to SPI_DEFAULT_FREQ defined in the library, you can override it here
-  // Note that speed allowable depends on chip and quality of wiring, if you go too fast, you
-  // may end up with a black screen some times, or all the time.
-  //tft.setSPISpeed(40000000);
-
-   
-  tft.fillScreen(ST7735_BLACK);
- 
-
- 
- tft.drawRGBBitmap(0,0,logo_ull,30,30);
-  
-
-  delay(2000);
-
-
- 
-  // large block of text
-  tft.fillScreen(ST7735_BLACK);
-  
- // testdrawtext("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur adipiscing ante sed nibh tincidunt feugiat. Maecenas enim massa, fringilla sed malesuada et, malesuada sit amet turpis. Sed porttitor neque ut ante pretium vitae malesuada nunc bibendum. Nullam aliquet ultrices massa eu hendrerit. Ut sed nisi lorem. In vestibulum purus a tortor imperdiet posuere. ", ST77XX_WHITE);
-  delay(1000);
-
-  // tft print function!
-  tftPrintTest();
-  delay(4000);
-
-  // a single pixel
-  tft.drawPixel(tft.width()/2, tft.height()/2, ST77XX_GREEN);
-  delay(500);
-
-  // line draw test
-  testlines(ST7735_YELLOW);
-  delay(500);
-
-  // optimized lines
-  testfastlines(ST7735_RED, ST7735_BLUE);
-  delay(500);
-
-  testdrawrects(ST77XX_GREEN);
-  delay(500);
-
-  testfillrects(ST77XX_YELLOW, ST77XX_MAGENTA);
-  delay(500);
-
-  tft.fillScreen(ST7735_BLACK);
-  testfillcircles(10, ST7735_BLUE);
-  testdrawcircles(10, ST77XX_WHITE);
-  delay(500);
-
-  testroundrects();
-  delay(500);
-
-  testtriangles();
-  delay(500);
-
-  mediabuttons();
-  delay(500);
-
-  Serial.println("done");
-  delay(1000);
-  
-}
-
-void loop() {
-  // put your main code here, to run repeatedly:
-
-  unsigned valorDigital;   
+void termometro()
+{
+   unsigned valorDigital;   
   int actualizarPantalla; ///se pone a 1 para actualizar la pantall cuando ha pasado 1000 milisegundos.
   
   tiempoInicial = millis();
@@ -200,13 +78,9 @@ void loop() {
  
 
   float voltios = 100.0 * (5.0/1024.0) * (float) valorDigital;
-
- 
-//Serial.println("boton joystic");
-//Serial.println(analogRead(joystickButtom));
-
-if (actualizarPantalla == 1)
-{
+  
+ if (actualizarPantalla == 1)
+ {
   if (celsius == 0) {
   
     float Temperatura = (voltios/11.0); ///11 es el valor que el apmplificador operacional en modo inversor aplica a la señal de entrada en base a las resistencia de 10Kh y 1Kh
@@ -222,27 +96,151 @@ if (actualizarPantalla == 1)
 
   } else { // Hacer la conversion a Farenheit
 
-    float Temperatura = (voltios/11.0) / 0.556 + 32  ; ///11 es el valor que el apmplificador operacional en modo inversor aplica a la señal de entrada en base a las resistencia de 10Kh y 1Kh
-  
-  
-    lcd.setCursor(0,0);
-    lcd.print(Temperatura);
-    lcd.print(" ");
-    lcd.print("F");
-
-    Serial.print(Temperatura);
-    Serial.println(" F");
+          float Temperatura = (voltios/11.0) / 0.556 + 32  ; ///11 es el valor que el apmplificador operacional en modo inversor aplica a la señal de entrada en base a las resistencia de 10Kh y 1Kh
+   
+          lcd.setCursor(0,0);
+          lcd.print(Temperatura);
+          lcd.print(" ");
+          lcd.print("F");
+      
+          Serial.print(Temperatura);
+          Serial.println(" F");
     
+        }
+ }
+}
+void menuShow()
+{
+
+if (option == 0)
+ {
+  tft.fillScreen(ST7735_BLACK);
+  tft.drawRGBBitmap(0,0,logo_ull,30,30);  
+  tft.drawRGBBitmap(98,0,logo_ull,30,30);
+  tft.setCursor(35, 3);
+  tft.setTextColor(ST7735_GREEN);
+  tft.setTextSize(2);
+  tft.println("Menu");
+  tft.drawLine(0, 32, 128, 32,ST7735_BLUE);
+  
+  //OPCIONES 
+  tft.setTextSize(1);
+  tft.setTextColor(ST7735_YELLOW);  
+  tft.setCursor(16, 35);  
+  tft.println("Gracos Cent");
+  tft.setTextColor(ST7735_WHITE);
+  tft.setCursor(16, 60);
+  tft.println("Grados Farenheit");
+  tft.setCursor(16, 85);
+  tft.println("Juego");
+  tft.setCursor(16, 110);
+  tft.println("Instrucciones");
+  option =  1; //indico que la opción uno es la seleccionada para empezar, o sea, Centígrados.
+ }
+ 
+}
+
+
+/* Devuelve un char con la siguiente configuración. Se analizará con operadores lógicos
+ * bit 0: a 1 si se apretó botón
+ * bit 1: a 1 si movimiento izquierda 
+ * bit 2: a 1 si movimiento derecha
+ * bit 3: a 1 si movimiento hacia arriba
+ * bit 4: a 1 si movimiento hacia abajo
+ */
+
+char joystick()  
+{
+  char valor=0;   ///todo a cero significa que no se ha hecho ningún movimiento ni apretado el boton
+  unsigned tmp,x,y;
+  
+  delay(200);
+  tmp = analogRead(joystickButtom);
+
+  if (tmp == 0)
+    valor |= 0x01; ///pongo  bit 0  1
+  else 
+    valor &= 0xE; ///pongo bit 0 a 0, puesto que no está el boton apretado.
+
+  y = analogRead(joystickY); 
+    
+  if(y >= 0 && y <= 300)
+  {    
+      valor |= 0x10; ///pongo bit 4 a 1 indicando movimiento hacia abajo-
+      valor &= 0xF7;  ///pongo bit 3 a 0 indicando que no hay movimiento hacia arriba.
   }
+  if(y >= 700 && y <= 1024)
+  {
+      valor |= 0x08; ///pongo bit 3 a 1 indicando movimiento hacia arriba
+      valor &= 0xEF; ///pongo bit 4 a 0 indicando que no hay movimiento hacia abajo.
+  }
+  x = analogRead(joystickX); 
+
+  if(x >= 0 && x <= 300)
+   {
+      valor |= 0x02; ///pongo bit 1 a 1 indicando movimiento hacia izquierda
+      valor &= 0xFB; ///pongo bit 2 a cero indicando que no hay movimiento hacia la derecha
+   }  
+  if(x >= 700 && x <= 1024)
+  {
+      valor |= 0x04; ///pongo bit 2 a 1 indicando movimiento hacia derecha
+      valor &= 0xFD;  ///pongo bit 1 a 0 indicando que no hay movimiento hacia la izquierda
+  }
+  if(x >= 300 && x <= 700)
+    valor &= 0xF9; ///borro movimiento izquierda o derecha.
+    
+  if(y >= 300 && y <= 700)
+    valor &= 0xE7; ///borro movimiento arriba o abajo
+  
+return valor;
+}
+
+void setup() {
+  ///código para práctica 1
+  Serial.begin(9600);
+   lcd.init();
+
+ // Turn on the blacklight and print a message.
+  lcd.backlight();
+
+  lcd.begin(16, 2);
+  lcd.setCursor(0,0);
+  lcd.print("Inicializando...");
+  delay(1000);
+  lcd.setCursor(0,0);
+  lcd.print("                ");
+  
+  // definir el pin del boton como entrada
+  // ponerlo como entrada pullup
+
+  pinMode(Boton, INPUT_PULLUP);
+
+//código para práctica 2
+   tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab   
+   tft.setRotation(90);
+
+  
+}
+
+void loop() {
+  
+
+ termometro();
+ menuShow();
+ joystick();
+ 
+//Serial.println("boton joystic");
+//Serial.println(analogRead(joystickButtom));
+
+
  //  tft.invertDisplay(true);
  // delay(500);
  // tft.invertDisplay(false);
  // delay(500);
 }
-}
 
 
-void testlines(uint16_t color) {
+/*void testlines(uint16_t color) {
   tft.fillScreen(ST77XX_BLACK);
   for (int16_t x=0; x < tft.width(); x+=6) {
     tft.drawLine(0, 0, x, tft.height()-1, color);
@@ -431,4 +429,4 @@ void mediabuttons() {
   tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_RED);
   // play color
   tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
-}
+}*/
