@@ -2,7 +2,12 @@
  *Programa demostración TFT y LCD. 
  * @author Juan Siverio Rojas
  */
-
+/*
+ * Las imágenes del PUZZLE se han convertido a monocromo para que pudieran caber en la memoria de programa, pero el resultado es que apenas se distinguen bien.
+ * Se supone que son partes del logo de la ULL. 
+ * 
+ * Además se ha utilizado la versión de selección manual de pines, que no es tan rápida como la SPI, pero es más flexible permitiéndome elegir los pines.
+ */
 ///librerías para práctica 1(termómetro)
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
@@ -14,7 +19,10 @@
 #include <Adafruit_ST7789.h> // Hardware-specific library for ST7789
 #include <SPI.h>
 #include "logo_ull.c"
-
+#include "puzzle0M.c"
+#include "puzzle1M.c"
+#include "puzzle2M.c"
+#include "puzzle3M.c"
 
 ///variable para práctica 1
 
@@ -26,7 +34,8 @@ int celsius = 0; // variable que define si se muestra la temperatura en Celsius 
 int boton = 0; ///variable que indica a 1 boton apretado, a 0 botón sin apretar.
 unsigned long tiempoInicial = 0; ///tiempo desde que se arrancó el arduino
 unsigned long tiempoFinal = 0; ///cuando tiempo inicial >= tiempo final, se actualiza las pantalla tanto por Serial.print como la LCD. Esta variable se incremente en 1000 ms cada vez que se actualiza la pantalla.
-unsigned option = 0; ///Indico que estoy en la primera opción de menu.
+unsigned opcionMenuActual = 0; ///Indico a que posicion de menu me voy a mover. 0, indica repintar todo el menu.
+unsigned opcionMenuAnterior; ///Indico la posicion anterior
 
 //variables para práctica 2
 
@@ -45,11 +54,120 @@ unsigned option = 0; ///Indico que estoy en la primera opción de menu.
 #define TFT_MOSI 12  // Data out
 #define TFT_SCLK 13  // Clock out
 
+///Con un And lógico, comprueba con los siguientes valores su se apretó el botón o se movió hacia alguna dirección
+#define JOYSTICK_LEFT  0x02
+#define JOYSTICK_RIGHT 0x04
+#define JOYSTICK_UP    0x08
+#define JOYSTICK_DOWN   0x10
+#define JOYSTICK_BUTTOM  0x01
+
 // For ST7735-based displays, we will use this call
 Adafruit_ST7735 tft = Adafruit_ST7735(TFT_CS, TFT_DC, TFT_MOSI, TFT_SCLK, TFT_RST);
 
-float p = 3.1415926;
+//Funciones prototipo
+void termometro();
+void menuShow();
+int joystick();
+void intrucciones();
+void puzzle();
 
+/*
+ * SETUP
+ */
+void setup() {
+  ///código para práctica 1
+  Serial.begin(9600);
+   lcd.init();
+
+ // Turn on the blacklight and print a message.
+  lcd.backlight();
+
+  lcd.begin(16, 2);
+  lcd.setCursor(0,0);
+  lcd.print("Inicializando...");
+  delay(1000);
+  lcd.setCursor(0,0);
+  lcd.print("                ");
+  
+  // definir el pin del boton como entrada
+  // ponerlo como entrada pullup
+
+  pinMode(Boton, INPUT_PULLUP);
+
+//código para práctica 2
+   tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab   
+   tft.setRotation(90);
+
+  
+}
+
+/*
+ * LOOP
+ */
+void loop() {
+
+ termometro();
+ menuShow();
+ 
+int valor = joystick();
+
+
+if (valor != 0 )
+  if (valor & JOYSTICK_BUTTOM)
+      switch (opcionMenuActual)
+      {
+        case 1:  
+              celsius = 0;
+              break;
+              
+        case 2:
+              celsius = 1;
+              break;
+              
+        case 3:
+              puzzle();
+              opcionMenuActual = 0;
+              menuShow();
+              break;
+    
+        case 4:
+              instrucciones();
+              opcionMenuActual = 0;
+              menuShow();
+        
+              break;
+        default:
+              break;
+      }
+  else 
+      {
+        if (valor & JOYSTICK_UP)
+          opcionMenuActual++;
+      
+      if (valor & JOYSTICK_DOWN)
+          opcionMenuActual--;
+        
+      }
+      
+
+///dar la vuelta al menu
+if (opcionMenuActual == 5)
+  opcionMenuActual = 1;
+ 
+if (opcionMenuActual == 0)
+  opcionMenuActual = 4;
+
+
+
+}
+
+/*
+ * FUNCIONAS INTERNAS
+ */
+
+ /*
+  * Termómetro 
+ */
 void termometro()
 {
    unsigned valorDigital;   
@@ -109,10 +227,15 @@ void termometro()
         }
  }
 }
+
+
+/*
+ * Menu. Muestra el menu completo si opcionMenuActual  = 0. De lo contrario, actualiza solo la opcion de menu en concreto mediante SPRITE.
+ */
 void menuShow()
 {
 
-if (option == 0)
+if (opcionMenuActual == 0)
  {
   tft.fillScreen(ST7735_BLACK);
   tft.drawRGBBitmap(0,0,logo_ull,30,30);  
@@ -132,12 +255,79 @@ if (option == 0)
   tft.setCursor(16, 60);
   tft.println("Grados Farenheit");
   tft.setCursor(16, 85);
-  tft.println("Juego");
+  tft.println("Juego PUZZLE");
   tft.setCursor(16, 110);
   tft.println("Instrucciones");
-  option =  1; //indico que la opción uno es la seleccionada para empezar, o sea, Centígrados.
+  opcionMenuActual =  1; //indico que la opción uno es la seleccionada para empezar, o sea, Centígrados.
+  opcionMenuAnterior = 1;
  }
+
+else if (opcionMenuActual != opcionMenuAnterior)
+{
+  ///selecciono la nueva opción y anula la anterior, lo hago con la técnica SPRITES, que solo actualizo lo modificado y necesario, en lugar de toda la pantalla
+  tft.setTextSize(1);
+ tft.setTextColor(ST7735_WHITE);  
+  switch (opcionMenuAnterior)
+  {
+    case 1:  
+          tft.setCursor(16, 35);  
+          tft.println("Gracos Cent");          
+          break;
+          
+    case 2:
+          tft.setCursor(16, 60);
+          tft.println("Grados Farenheit");
+          break;
+          
+    case 3:
+          tft.setCursor(16, 85);
+          tft.println("Juego PUZZLE");
+
+          break;
+
+    case 4:
+          tft.setCursor(16, 110);
+          tft.println("Instrucciones");
+    
+          break;
+    default:
+          break;
+  }
+
+opcionMenuAnterior = opcionMenuActual;
  
+ tft.setTextColor(ST7735_YELLOW);  
+  switch (opcionMenuActual)
+  {
+    case 1:  
+          tft.setCursor(16, 35);  
+          tft.println("Gracos Cent");          
+          break;
+          
+    case 2:
+          tft.setCursor(16, 60);
+          tft.println("Grados Farenheit");
+          break;
+          
+    case 3:
+          tft.setCursor(16, 85);
+          tft.println("Juego PUZZLE");
+
+          break;
+
+    case 4:
+          tft.setCursor(16, 110);
+          tft.println("Instrucciones");
+    
+          break;
+    default:
+          break;
+  }
+
+  
+}
+  
+
 }
 
 
@@ -149,12 +339,11 @@ if (option == 0)
  * bit 4: a 1 si movimiento hacia abajo
  */
 
-char joystick()  
+int joystick()  
 {
-  char valor=0;   ///todo a cero significa que no se ha hecho ningún movimiento ni apretado el boton
-  unsigned tmp,x,y;
-  
-  delay(200);
+  int valor = 0;   ///todo a cero significa que no se ha hecho ningún movimiento ni apretado el boton
+  int tmp,x,y;  
+  delay(50);
   tmp = analogRead(joystickButtom);
 
   if (tmp == 0)
@@ -195,238 +384,50 @@ char joystick()
 return valor;
 }
 
-void setup() {
-  ///código para práctica 1
-  Serial.begin(9600);
-   lcd.init();
-
- // Turn on the blacklight and print a message.
-  lcd.backlight();
-
-  lcd.begin(16, 2);
-  lcd.setCursor(0,0);
-  lcd.print("Inicializando...");
-  delay(1000);
-  lcd.setCursor(0,0);
-  lcd.print("                ");
-  
-  // definir el pin del boton como entrada
-  // ponerlo como entrada pullup
-
-  pinMode(Boton, INPUT_PULLUP);
-
-//código para práctica 2
-   tft.initR(INITR_GREENTAB);      // Init ST7735S chip, green tab   
-   tft.setRotation(90);
-
-  
-}
-
-void loop() {
-  
-
- termometro();
- menuShow();
- joystick();
- 
-//Serial.println("boton joystic");
-//Serial.println(analogRead(joystickButtom));
-
-
- //  tft.invertDisplay(true);
- // delay(500);
- // tft.invertDisplay(false);
- // delay(500);
-}
-
-
-/*void testlines(uint16_t color) {
+void instrucciones()
+{
   tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, 0, x, tft.height()-1, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, 0, tft.width()-1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, 0, x, tft.height()-1, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, 0, 0, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(0, tft.height()-1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(0, tft.height()-1, tft.width()-1, y, color);
-    delay(0);
-  }
-
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, x, 0, color);
-    delay(0);
-  }
-  for (int16_t y=0; y < tft.height(); y+=6) {
-    tft.drawLine(tft.width()-1, tft.height()-1, 0, y, color);
-    delay(0);
-  }
-}
-
-void testdrawtext(char *text, uint16_t color) {
+  tft.setTextColor(ST7735_WHITE);
   tft.setCursor(0, 0);
-  tft.setTextColor(color);
-  tft.setTextWrap(true);
-  tft.print(text);
+  tft.println("Opcion 1: Muestra en la LCD la temperatura actual en Celsius");
+  //tft.setCursor(5, 47);
+  ///tft.setCursor(3, 59);
+  tft.println("\nOpcion 2: Muestra en la LCD en temperatura actual en Farenhait");
+//  tft.setCursor(3, 71);
+ // tft.println("Farenhait");
+ // tft.setCursor(3, 83);
+  tft.println("\nOpcion 3:Juego PUZZLE");
+  //tft.setCursor(3, 95);
+  tft.println("\nProgramado por Juan Siverio Rojas");
+  //tft.setCursor(30,148);
+  tft.println("\nMueva o apriete el boton del mando");
+  while (joystick()== 0);
 }
+void puzzle()
+{
+  
+  const uint8_t * imagen[4];  
+  imagen[0] =  puzzle0;
+  imagen[1] = puzzle1;
+  imagen[2] = puzzle2;
+ imagen[3] = puzzle3;
 
-void testfastlines(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t y=0; y < tft.height(); y+=5) {
-    tft.drawFastHLine(0, y, tft.width(), color1);
-  }
-  for (int16_t x=0; x < tft.width(); x+=5) {
-    tft.drawFastVLine(x, 0, tft.height(), color2);
-  }
+  int finish[4];
+  finish[0] = 0;
+  finish[1] = 1;
+  finish[2] = 2;
+  finish[3] = 3;
+  
+  int posActual[4];
+  posActual[0] = 2;
+  posActual[1] = 0;
+  posActual[2] = 1;
+  posActual[3] = 3;
+  
+  tft.fillScreen(ST7735_BLACK);    
+  tft.drawGrayscaleBitmap(0,0,imagen[posActual[0]],64,80); 
+  tft.drawGrayscaleBitmap(65,0,imagen[posActual[1]],64,80);  
+  tft.drawGrayscaleBitmap(0,81,imagen[posActual[2]],64,80);  
+  tft.drawGrayscaleBitmap(65,81,imagen[posActual[3]],64,80);  
+  while (joystick()== 0);
 }
-
-void testdrawrects(uint16_t color) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=0; x < tft.width(); x+=6) {
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color);
-  }
-}
-
-void testfillrects(uint16_t color1, uint16_t color2) {
-  tft.fillScreen(ST77XX_BLACK);
-  for (int16_t x=tft.width()-1; x > 6; x-=6) {
-    tft.fillRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color1);
-    tft.drawRect(tft.width()/2 -x/2, tft.height()/2 -x/2 , x, x, color2);
-  }
-}
-
-void testfillcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=radius; x < tft.width(); x+=radius*2) {
-    for (int16_t y=radius; y < tft.height(); y+=radius*2) {
-      tft.fillCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testdrawcircles(uint8_t radius, uint16_t color) {
-  for (int16_t x=0; x < tft.width()+radius; x+=radius*2) {
-    for (int16_t y=0; y < tft.height()+radius; y+=radius*2) {
-      tft.drawCircle(x, y, radius, color);
-    }
-  }
-}
-
-void testtriangles() {
-  tft.fillScreen(ST77XX_BLACK);
-  uint16_t color = 0xF800;
-  int t;
-  int w = tft.width()/2;
-  int x = tft.height()-1;
-  int y = 0;
-  int z = tft.width();
-  for(t = 0 ; t <= 15; t++) {
-    tft.drawTriangle(w, y, y, x, z, x, color);
-    x-=4;
-    y+=4;
-    z-=4;
-    color+=100;
-  }
-}
-
-void testroundrects() {
-  tft.fillScreen(ST77XX_BLACK);
-  uint16_t color = 100;
-  int i;
-  int t;
-  for(t = 0 ; t <= 4; t+=1) {
-    int x = 0;
-    int y = 0;
-    int w = tft.width()-2;
-    int h = tft.height()-2;
-    for(i = 0 ; i <= 16; i+=1) {
-      tft.drawRoundRect(x, y, w, h, 5, color);
-      x+=2;
-      y+=3;
-      w-=4;
-      h-=6;
-      color+=1100;
-    }
-    color+=100;
-  }
-}
-//*
-///funciones para pruebas tft
-///*
-void tftPrintTest() {
-  tft.setTextWrap(false);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setCursor(0, 30);
-  tft.setTextColor(ST77XX_RED);
-  tft.setTextSize(1);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_YELLOW);
-  tft.setTextSize(2);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_GREEN);
-  tft.setTextSize(3);
-  tft.println("Hello World!");
-  tft.setTextColor(ST77XX_BLUE);
-  tft.setTextSize(4);
-  tft.print(1234.567);
-  delay(1500);
-  tft.setCursor(0, 0);
-  tft.fillScreen(ST77XX_BLACK);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.setTextSize(0);
-  tft.println("Hello World!");
-  tft.setTextSize(1);
-  tft.setTextColor(ST77XX_GREEN);
-  tft.print(p, 6);
-  tft.println(" Want pi?");
-  tft.println(" ");
-  tft.print(8675309, HEX); // print 8,675,309 out in HEX!
-  tft.println(" Print HEX!");
-  tft.println(" ");
-  tft.setTextColor(ST77XX_WHITE);
-  tft.println("Sketch has been");
-  tft.println("running for: ");
-  tft.setTextColor(ST77XX_MAGENTA);
-  tft.print(millis() / 1000);
-  tft.setTextColor(ST77XX_WHITE);
-  tft.print(" seconds.");
-}
-
-void mediabuttons() {
-  // play
-  tft.fillScreen(ST77XX_BLACK);
-  tft.fillRoundRect(25, 10, 78, 60, 8, ST77XX_WHITE);
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_RED);
-  delay(500);
-  // pause
-  tft.fillRoundRect(25, 90, 78, 60, 8, ST77XX_WHITE);
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_GREEN);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_GREEN);
-  delay(500);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_BLUE);
-  delay(50);
-  // pause color
-  tft.fillRoundRect(39, 98, 20, 45, 5, ST77XX_RED);
-  tft.fillRoundRect(69, 98, 20, 45, 5, ST77XX_RED);
-  // play color
-  tft.fillTriangle(42, 20, 42, 60, 90, 40, ST77XX_GREEN);
-}*/
