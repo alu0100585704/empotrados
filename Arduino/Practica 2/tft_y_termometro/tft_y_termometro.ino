@@ -166,7 +166,8 @@ if (opcionMenuActual == 0)
  */
 
  /*
-  * Termómetro 
+  * Termómetro. Mostrará la temperatura actual a intervalos de 1 segundo en grados
+  * celsius o farenhait ependiendo de la pulsación del botón o de la selección del menú
  */
 void termometro()
 {
@@ -231,6 +232,7 @@ void termometro()
 
 /*
  * Menu. Muestra el menu completo si opcionMenuActual  = 0. De lo contrario, actualiza solo la opcion de menu en concreto mediante SPRITE.
+ * O sea, solo actualiza la parte que cambia
  */
 void menuShow()
 {
@@ -337,6 +339,9 @@ opcionMenuAnterior = opcionMenuActual;
  * bit 2: a 1 si movimiento derecha
  * bit 3: a 1 si movimiento hacia arriba
  * bit 4: a 1 si movimiento hacia abajo
+ * Esta función permite de una sola lectura, obtener varias combinaciones de pulsaciones
+ * Por ejemplo, se puede comprobar si se ha pulsado el botón mientras se está moviendo hacia izquierda y arriba simultaneamente.
+ 
  */
 
 int joystick()  
